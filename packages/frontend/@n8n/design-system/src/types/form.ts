@@ -85,5 +85,6 @@ export type InputAutocompletePropType =
 	| 'current-password'
 	| 'given-name'
 	| 'family-name'
+	| 'username'
 	| 'email'; // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete
 export type ElementPlusSizePropType = '' | 'small' | 'large' | 'default' | undefined;

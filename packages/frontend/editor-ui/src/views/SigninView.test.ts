@@ -97,4 +97,24 @@ describe('SigninView', () => {
 
 		expect(router.push).toHaveBeenCalledWith('/home/workflows');
 	});
+
+	it('should accept a non-email LDAP login ID', async () => {
+		settingsStore.isLdapLoginEnabled = true;
+		usersStore.loginWithCreds.mockResolvedValueOnce();
+
+		const { container, getByRole } = renderComponent();
+		const loginInput = container.querySelector('input[autocomplete="username"]');
+		const passwordInput = container.querySelector('input[type="password"]');
+
+		expect(loginInput).toHaveAttribute('type', 'text');
+		if (!loginInput || !passwordInput) throw new Error('Login inputs not found');
+
+		await userEvent.type(loginInput, 'jdoe');
+		await userEvent.type(passwordInput, 'password');
+		await userEvent.click(getByRole('button', { name: 'Sign in' }));
+
+		expect(usersStore.loginWithCreds).toHaveBeenCalledWith(
+			expect.objectContaining({ emailOrLdapLoginId: 'jdoe', password: 'password' }),
+		);
+	});
 });

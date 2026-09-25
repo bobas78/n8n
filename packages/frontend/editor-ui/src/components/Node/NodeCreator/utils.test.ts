@@ -1,5 +1,11 @@
 import type { SectionCreateElement } from '@/Interface';
-import { formatTriggerActionName, groupItemsInSections, sortNodeCreateElements } from './utils';
+import { createTestingPinia } from '@pinia/testing';
+import {
+	formatTriggerActionName,
+	groupItemsInSections,
+	searchNodes,
+	sortNodeCreateElements,
+} from './utils';
 import {
 	mockActionCreateElement,
 	mockNodeCreateElement,
@@ -7,6 +13,17 @@ import {
 } from './__tests__/utils';
 
 describe('NodeCreator - utils', () => {
+	describe('searchNodes', () => {
+		it('finds trigger nodes when the query is just "trigger"', () => {
+			createTestingPinia();
+			const trigger = mockNodeCreateElement({}, { displayName: 'Manual Trigger' });
+			const other = mockNodeCreateElement({}, { displayName: 'HTTP Request' });
+
+			expect(searchNodes('trigger', [trigger, other])).toEqual([trigger]);
+			expect(searchNodes('manual trigger', [trigger, other])).toEqual([trigger]);
+		});
+	});
+
 	describe('groupItemsInSections', () => {
 		it('should handle multiple sections (with "other" section)', () => {
 			const node1 = mockNodeCreateElement({ key: 'popularNode' });

@@ -15,6 +15,9 @@ import { useTagsStore } from '@/stores/tags.store';
 import { createRouter, createWebHistory } from 'vue-router';
 import * as usersApi from '@/api/users';
 import { useFoldersStore } from '@/stores/folders.store';
+import { usePostHog } from '@/stores/posthog.store';
+import { EASY_AI_WORKFLOW_EXPERIMENT } from '@/constants';
+import { nextTick } from 'vue';
 
 vi.mock('@/api/projects.api');
 vi.mock('@/api/users');
@@ -130,6 +133,30 @@ describe('WorkflowsView', () => {
 			await userEvent.click(getByTestId('new-workflow-card'));
 
 			expect(router.currentRoute.value.name).toBe(VIEWS.NEW_WORKFLOW);
+		});
+	});
+
+	describe('Easy AI workflow callout', () => {
+		it('only offers workflow creation when the user can create workflows', async () => {
+			const posthogStore = mockedStore(usePostHog);
+			posthogStore.getVariant.mockReturnValue(EASY_AI_WORKFLOW_EXPERIMENT.variant);
+			const projectsStore = mockedStore(useProjectsStore);
+			const sourceControlStore = mockedStore(useSourceControlStore);
+			projectsStore.currentProject = { scopes: ['workflow:create'] } as Project;
+			foldersStore.totalWorkflowCount = 1;
+
+			const { queryByTestId } = renderComponent({ pinia });
+			await waitAllPromises();
+			expect(queryByTestId('easy-ai-button')).toBeInTheDocument();
+
+			sourceControlStore.preferences.branchReadOnly = true;
+			await nextTick();
+			expect(queryByTestId('easy-ai-button')).not.toBeInTheDocument();
+
+			sourceControlStore.preferences.branchReadOnly = false;
+			projectsStore.currentProject = { scopes: ['workflow:read'] } as Project;
+			await nextTick();
+			expect(queryByTestId('easy-ai-button')).not.toBeInTheDocument();
 		});
 	});
 
