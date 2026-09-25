@@ -90,8 +90,10 @@ export function searchNodes(searchFilter: string, items: INodeCreateElement[]) {
 		items = items.filter((item) => item.key !== AI_TRANSFORM_NODE_TYPE);
 	}
 
-	// In order to support the old search we need to remove the 'trigger' part
-	const trimmedFilter = searchFilter.toLowerCase().replace('trigger', '').trimEnd();
+	// Keep "trigger" searchable when stripping it would leave an empty query.
+	const normalizedFilter = searchFilter.toLowerCase();
+	const withoutTrigger = normalizedFilter.replace('trigger', '').trimEnd();
+	const trimmedFilter = withoutTrigger.trim() ? withoutTrigger : normalizedFilter.trim();
 
 	const result = (
 		sublimeSearch<INodeCreateElement>(trimmedFilter, items, [
