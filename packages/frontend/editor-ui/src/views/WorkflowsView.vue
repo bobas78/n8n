@@ -300,7 +300,12 @@ const showEasyAIWorkflowCallout = computed(() => {
 		posthogStore.getVariant(EASY_AI_WORKFLOW_EXPERIMENT.name) ===
 		EASY_AI_WORKFLOW_EXPERIMENT.variant;
 	const easyAIWorkflowOnboardingDone = usersStore.isEasyAIWorkflowOnboardingDone;
-	return isEasyAIWorkflowExperimentEnabled && !easyAIWorkflowOnboardingDone;
+	return (
+		isEasyAIWorkflowExperimentEnabled &&
+		!easyAIWorkflowOnboardingDone &&
+		!readOnlyEnv.value &&
+		projectPermissions.value.workflow.create
+	);
 });
 
 const projectPermissions = computed(() => {
